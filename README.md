@@ -62,12 +62,46 @@ The CSV preserves the original columns: `Timestamp`, `RPM`, `Speed`, `Throttle`,
 
 The source files were renamed from `main`, `ecu`, and `can` to describe their responsibilities. Build outputs now live in `build/`; the executable remains `ecu_sim`.
 
-## Verify changes
+## Run the tests
+
+Run these commands from the project root (the directory containing `Makefile`). You need Make, a C compiler, a C++17 compiler, Python 3, curl, and tar. The first test build requires internet access to download the pinned [GoogleTest 1.17.0 release](https://github.com/google/googletest/releases/tag/v1.17.0); the build verifies its SHA-256 checksum.
+
+To build and run all unit tests and the telemetry integration check:
 
 ```sh
 make test
+```
+
+This runs the GoogleTest unit tests with GoogleMock matchers, then runs a 1,000-step simulation and checks its CSV with Python. A successful run reports `[  PASSED  ] 11 tests.` and `1000-step telemetry checks passed`. Any failed test causes `make test` to exit with a nonzero status.
+
+To build and run only the unit tests:
+
+```sh
+make build/test_simulator
+./build/test_simulator
+```
+
+To list available tests or run selected tests:
+
+```sh
+./build/test_simulator --gtest_list_tests
+./build/test_simulator --gtest_filter='SimulatorTest.*'
+./build/test_simulator --gtest_filter=SimulatorTest.RejectsQueueOverflow
+```
+
+For an offline build, use an existing GoogleTest 1.17.0 source checkout containing both `googletest/` and `googlemock/`:
+
+```sh
+make test GTEST_DIR=/absolute/path/to/googletest-1.17.0
+```
+
+Dependencies, test binaries, and test telemetry live in `build/`. To remove build outputs and the simulator executable:
+
+```sh
 make clean
 ```
+
+The next default test build downloads GoogleTest again after cleaning.
 
 Tests cover round-trip message delivery, priority ordering, queue overflow, checksum rejection, duplicate and missing messages, sequence recovery and rollover, malformed payload length, low-value arithmetic, temperature diagnostics, and a 1,000-step CSV run through acceleration and braking.
 
