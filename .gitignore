@@ -1,0 +1,7 @@
+build/
+ecu_sim
+telemetry_log.csv
+.vscode/
+.DS_Store
+.ipynb_checkpoints/
+analysis/ecu_telemetry_analysis.png
